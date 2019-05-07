@@ -155,3 +155,118 @@ client.on('message', message => {
       message.channel.sendEmbed(embed);
     }
 });
+var word;
+ 
+client.on("message", async function(msg) {
+    if (msg.author.bot) return undefined;
+    if (msg.channel.type !== "text") return undefined;
+    else {
+        var args = msg.content.toLowerCase().split(" ");
+        if (args[0].slice(prefix.length) === "clear") {
+            if (isNaN(args[1]) && args[1]) return msg.channel.send("استخددم الارقام ,_,");
+            if (!msg.guild.member(client.user)) return msg.channel.send('لايوجد لدي صلاحيات كافيه!');
+            if (!msg.member.hasPermission("MANAGE_MESSAGES")) return msg.channel.send("انت لاتملك الصلاحيات الخاصة بمسح الرسائل!");
+            else {
+                if (args[1] || !args[1]) {
+                    await msg.channel.fetchMessages().then(async msgs => {
+                        var word;
+                        if (msgs.size-1 >= 1) word = "رسالة";
+                        if (msgs.size-1 <= 1) word = "رسائل";
+                        if(msgs.size-1 <= 0) return msg.channel.send(`لايوجد رسائل لمسحها!`);
+                        if (!args[1]) {
+                            if (msgs.size-1 < 100) {
+                                await msg.channel.bulkDelete(msgs.size);
+								await	message.channel.sendMessage("", {embed: {
+									title: "Done | تــم",
+									color: 0x06DF00,
+									description: `لقد مسحت الرسائل`,
+									footer: {
+									  text: "unknown team"
+									}
+								  }}).then(msg => {msg.delete(10000)});
+                            }
+                            else if (msgs.size-1 >= 100) {
+                                await msg.delete();
+                                await msg.channel.bulkDelete(msgs.size);
+								await message.channel.sendMessage("", {embed: {
+									title: "Done | تــم",
+									color: 0x06DF00,
+									description: `لقد مسحت الرسائل`,
+									footer: {
+									  text: "unknown team"
+									}
+								  }}).then(msg => {msg.delete(10000)});
+                            }
+                        }
+                        else if (args[1] && args[1] < 100) {
+                            if (msgs.size-1 < 100 && args[1] < 100 && args[1] > 0) {
+                                await msg.channel.bulkDelete(parseInt(args[1])+1);
+                                await msg.channel.send(```عدد الرسائل التي تم حذفها ${parseInt(args[1]).toFixed()} ${word}..```);
+							await	message.channel.sendMessage("", {embed: {
+									title: "Done | تــم",
+									color: 0x06DF00,
+									description: `لقد مسحت الرسائل`,
+									footer: {
+									  text: "unknown team"
+									}
+								  }}).then(msg => {msg.delete(10000)});
+                            }
+                            else if (msgs.size-1 >= 100 && args[1] == 100) {
+                                await msg.delete();
+                                await msg.channel.bulkDelete(msgs.size);
+								await message.channel.sendMessage("", {embed: {
+									title: "Done | تــم",
+									color: 0x06DF00,
+									description: `لقد مسحت الرسائل`,
+									footer: {
+									  text: "unknown team"
+									}
+								  }}).then(msg => {msg.delete(10000)});
+                            }
+                            else {
+                                return msg.channel.send(`عدد خاطئ..`);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    }
+});
+client.on("message", message => {
+    var args = message.content.substring(prefix.length).split(" ");
+	if (message.content.startsWith(prefix + "clearall")) {
+		if(!message.channel.guild)return message.reply('⚠ | **هذا الامر يعمل بالخوادم فقط لايعمل بالخاص**');
+			if(!message.member.hasPermission('MANAGE_MESSAGES')) return message.reply('⚠ | **ليس لديك صلاحيات**');
+				if(!message.member.hasPermission('ADMINISTRATOR')) return;
+					var msg;
+					msg = parseInt();
+					const embed9 = new Discord.RichEmbed()
+					.setColor(embedColor)
+					.addField(`مسح كل الرسائل`, 'هل أنت واثق؟ بعد التأكيد ، لا يمكنك إلغاء هذا الإجراء! \n للتأكيد ، اكتب \  ***confirm ** \n. سوف تنتهي المهلة خلال 15 ثانيه ويتم إلغاؤها.')
+					message.channel.send({ embed: embed9 })
+					.then((m) => {
+					  message.channel.awaitMessages(response => response.content === prefix + 'confirm', {
+						max: 1,
+						time: 15000,
+						errors: ['time'],
+					  })
+					  .then((collected) => {
+								  message.channel.fetchMessages({limit: msg}).then(messages => message.channel.bulkDelete(messages)).catch(console.error);
+								  message.channel.sendMessage("", {embed: {
+									title: "Done | تــم",
+									color: 0x06DF00,
+									description: "تم مسح الرسائل بنجاح",
+									footer: {
+									  text: "unknown team"
+									}
+								  }}).then(msg => {msg.delete(3000)});		})
+						.catch(() => {
+						  m.edit('انتهى وقت التاكيد.').then(m2 => {
+							  m2.delete();
+						  }, 3000);
+						});
+					});
+
+					}
+});
